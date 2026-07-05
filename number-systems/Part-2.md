@@ -13,10 +13,10 @@ Q17: If reading the byte 0x21 as an ASCII character, what character would it mea
 Answer: !
 
 Q18: If reading the byte 0x21 as a greyscale colour, as described in "Approaches for Representing Colors and Images", what colour would it mean?
-Answer:
+Answer: it would be a dark grey color
 
 Q19: If reading the bytes 0xAA00FF as a sequence of three one-byte decimal numbers, what decimal numbers would they be?
-Answer:
+Answer: a neon purple
 
 Q20: If reading the bytes 0xAA00FF as an RGB colour, as described in "Approaches for Representing Colors and Images", what colour would it mean?
-Answer:
+Answer: 170, 0, 255
