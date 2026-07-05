@@ -10,7 +10,7 @@ Q16: How can you test if a binary number is a power of two (e.g. 1, 2, 4, 8, 16,
 Answer: if the number has a single 1 (eg 001000) then it is to the power of two. If it has more 1s (eg 100100) then it is not to the power of two
 
 Q17: If reading the byte 0x21 as an ASCII character, what character would it mean?
-Answer: !
+Answer: it gives: ! (first changes it to decimal before mapping it to ASCII corresponding character)
 
 Q18: If reading the byte 0x21 as a greyscale colour, as described in "Approaches for Representing Colors and Images", what colour would it mean?
 Answer: it would be a dark grey color
