@@ -9,3 +9,4 @@ set -euo pipefail
 
 jq -r '.[] | "\(.name) \(.scores[0])"' scores.json
 
+
