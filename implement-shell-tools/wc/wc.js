@@ -1,70 +1,78 @@
 import { program } from "commander";
 import { promises as fs } from "node:fs";
 
-const argv = process.argv.slice(2);
+program
+  .name("check-for-wc")
+  .description("Implement my own version of wc")
+  .argument("<paths...>", "The file paths to process")
+  .option("-l", "Counts the total number of lines")
+  .option("-c", "Counts the total number of characters")
+  .option("-w", "Counts the total number of words");
 
-const flags = argv.filter((arg) => arg.startsWith("-"));
-const paths = argv.filter((arg) => !arg.startsWith("-"));
+program.parse();
 
-const showLines = flags.includes("-l");
-const showWords = flags.includes("-w");
-const showBytes = flags.includes("-c");
+///
 
-const noFlagsGiven = !showLines && !showWords && !showBytes;
+const paths = program.args;
+const showLines = program.opts().l;
+const showWords = program.opts().w;
+const showChar = program.opts().c;
+
+const noFlagsGiven = !showLines && !showWords && !showChar;
 
 const columns = [];
-if (noFlagsGiven || showLines) columns.push("lines");
-if (noFlagsGiven || showWords) columns.push("words");
-if (noFlagsGiven || showBytes) columns.push("bytes");
 
-function countStats(content) {
-  const lines = (content.match(/\n/g) || []).length;
-  const words = content.split(/\s+/).filter((w) => w.length > 0).length;
-  const bytes = Buffer.byteLength(content, "utf-8");
-  return { lines, words, bytes };
-}
-
-// Read every file and collect its stats
-const rows = [];
 for (const path of paths) {
   const content = await fs.readFile(path, "utf-8");
-  rows.push({ path, stats: countStats(content) });
-}
 
-// If there's more than one file, we also need a "total" row at the end
-if (rows.length > 1) {
-  const total = { lines: 0, words: 0, bytes: 0 };
-  for (const { stats } of rows) {
-    total.lines += stats.lines;
-    total.words += stats.words;
-    total.bytes += stats.bytes;
-  }
-  rows.push({ path: "total", stats: total });
-}
+  const lineCount = content.split("\n").length - 1;
 
-const needsAlignment = columns.length > 1 || rows.length > 1;
+  const wordCount = content
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
 
-let width = 0;
-if (needsAlignment) {
-  for (const { stats } of rows) {
-    for (const col of columns) {
-      width = Math.max(width, String(stats[col]).length);
-    }
-  }
+  const charCount = Buffer.byteLength(content, "utf-8");
 
-  width = Math.max(width, 3);
-}
-
-for (const { path, stats } of rows) {
-  const parts = columns.map((col, index) => {
-    const text = String(stats[col]);
-    if (!needsAlignment) {
-      return text;
-    }
-    const padded = text.padStart(width, " ");
-
-    return index === 0 ? padded : " " + padded;
+  columns.push({
+    path: path,
+    lines: lineCount,
+    words: wordCount,
+    char: charCount,
   });
+}
+if (columns.length > 1) {
+  let totalLines = 0;
+  let totalWords = 0;
+  let totalChar = 0;
 
-  console.log(`${parts.join("")} ${path}`);
+  for (const result of columns) {
+    totalLines += result.lines;
+    totalWords += result.words;
+    totalChar += result.char;
+  }
+
+  columns.push({
+    path: "total",
+    lines: totalLines,
+    words: totalWords,
+    char: totalChar,
+  });
+}
+
+for (const result of columns) {
+  let line = "";
+
+  if (noFlagsGiven || showLines) {
+    line += String(result.lines).padStart(6, " ");
+  }
+  if (noFlagsGiven || showWords) {
+    line += String(result.words).padStart(6, " ");
+  }
+  if (noFlagsGiven || showChar) {
+    line += String(result.char).padStart(6, " ");
+  }
+
+  line += " " + result.path;
+
+  console.log(line);
 }

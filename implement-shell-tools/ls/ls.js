@@ -12,7 +12,6 @@ program.parse();
 
 const showOneLine = program.opts().one;
 const showAllFiles = program.opts().a;
-
 const paths = program.args;
 
 let filePath = paths;
