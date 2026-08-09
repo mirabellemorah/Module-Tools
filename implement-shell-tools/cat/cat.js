@@ -2,66 +2,55 @@ import { program } from "commander";
 import { promises as fs } from "node:fs";
 
 program
-  .name("cat")
-  .description("Concatenate and print files")
+  .name("check-for-cat")
+  .description("Implement my own version of cat")
   .argument("<paths...>", "The file paths to process")
   .option("-n", "Number lines")
   .option("-b", "Number non-blank lines");
 
 program.parse();
 
-function parseNumberMode(options) {
-  if (options.b) {
-    return "non-blank";
-  } else if (options.n) {
-    return "all";
-  } else {
-    return "none";
-  }
-}
+const paths = program.args;
+const showN = program.opts().n;
+const showB = program.opts().b;
 
-function calculatePrefix(
-  numberMode,
-  nonBlankLineNumber,
-  lineNumberIncludingBlanks,
-  thisLineIsBlank,
-) {
-  if (numberMode === "none") {
-    return "";
-  }
-  let lineNumber;
-  if (numberMode === "all") {
-    lineNumber = lineNumberIncludingBlanks;
-  } else {
-    if (thisLineIsBlank) {
-      return "";
-    } else {
-      lineNumber = nonBlankLineNumber;
-    }
-  }
-  return lineNumber.toString().padStart(6, " ") + "  ";
-}
+let lineNumber = 1;
 
-const numberMode = parseNumberMode(program.opts());
-
-for (const path of program.args) {
+for (const path of paths) {
   const content = await fs.readFile(path, "utf-8");
-  const lines = content.split("\n");
-  let nonBlankLineNumber = 1;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (i === lines.length - 1 && line === "") {
-      break;
-    }
-    const prefix = calculatePrefix(
-      numberMode,
-      nonBlankLineNumber,
-      i + 1,
-      line === "",
-    );
-    console.log(`${prefix}${line}`);
-    if (line !== "") {
-      nonBlankLineNumber += 1;
-    }
+
+  // Split into lines. If the file ends with a newline, split() leaves an
+  // extra empty string at the end - remove that so we don't print a
+  // phantom blank line.
+  const endsWithNewline = content.endsWith("\n");
+  let lines = content.split("\n");
+  if (endsWithNewline) {
+    lines.pop();
   }
+
+  lines = lines.map((line) => {
+    if (showB) {
+   
+      if (line === "") {
+        return line;
+      }
+      const numbered = String(lineNumber).padStart(6, " ") + "\t" + line;
+      lineNumber++;
+      return numbered;
+    } else if (showN) {
+    
+      const numbered = String(lineNumber).padStart(6, " ") + "\t" + line;
+      lineNumber++;
+      return numbered;
+    } else {
+     
+      return line;
+    }
+  });
+
+  let output = lines.join("\n");
+  if (endsWithNewline) {
+    output += "\n";
+  }
+  process.stdout.write(output);
 }
