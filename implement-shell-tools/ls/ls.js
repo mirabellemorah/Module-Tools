@@ -36,7 +36,11 @@ for (const target of filePath) {
     showFiles = [target];
   }
 
-  for (const file of showFiles) {
-    console.log(file);
+  if (showOneLine) {
+    for (const file of showFiles) {
+      console.log(file);
+    }
+  } else {
+    console.log(showFiles.join("  "));
   }
 }
