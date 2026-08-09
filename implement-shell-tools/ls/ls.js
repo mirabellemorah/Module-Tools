@@ -1,47 +1,43 @@
+import { program } from "commander";
 import { promises as fs } from "node:fs";
-import process from "node:process";
 
-const argv = process.argv.slice(2);
+program
+  .name("check-for-ls")
+  .description("Implement my own version of ls")
+  .argument("[paths...]", "The file paths to process")
+  .option("-1, --one", "This lists one file per line")
+  .option("-a", "This shows all files");
 
-const flags = [];
-const paths = [];
+program.parse();
 
-for (const arg of argv) {
-  if (arg.startsWith("-")) {
-    flags.push(arg);
-  } else {
-    paths.push(arg);
-  }
+const showOneLine = program.opts().one;
+const showAllFiles = program.opts().a;
+
+const paths = program.args;
+
+let filePath = paths;
+if (filePath.length === 0) {
+  filePath = ["."];
 }
 
-const showOnePerLine = flags.includes("-1");
-const showHiddenFiles = flags.includes("-a");
-
-let targets = paths;
-if (targets.length === 0) {
-  targets = ["."];
-}
-
-for (const target of targets) {
+for (const target of filePath) {
   const info = await fs.stat(target);
 
-  let namesToShow;
-
+  let showFiles;
   if (info.isDirectory()) {
-    namesToShow = await fs.readdir(target);
+    showFiles = await fs.readdir(target);
 
-    if (showHiddenFiles) {
-      namesToShow = [".", "..", ...namesToShow];
+    if (showAllFiles) {
+      showFiles = [".", "..", ...showFiles];
     } else {
-      namesToShow = namesToShow.filter((name) => !name.startsWith("."));
+      showFiles = showFiles.filter((name) => !name.startsWith("."));
     }
-
-    namesToShow.sort();
+    showFiles.sort();
   } else {
-    namesToShow = [target];
+    showFiles = [target];
   }
 
-  for (const name of namesToShow) {
-    console.log(name);
+  for (const file of showFiles) {
+    console.log(file);
   }
 }

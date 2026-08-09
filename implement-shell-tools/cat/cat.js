@@ -19,9 +19,6 @@ let lineNumber = 1;
 for (const path of paths) {
   const content = await fs.readFile(path, "utf-8");
 
-  // Split into lines. If the file ends with a newline, split() leaves an
-  // extra empty string at the end - remove that so we don't print a
-  // phantom blank line.
   const endsWithNewline = content.endsWith("\n");
   let lines = content.split("\n");
   if (endsWithNewline) {
