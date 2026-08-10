@@ -2,7 +2,7 @@ import argparse
 
 parser = argparse.ArgumentParser(
     prog="check-for-cat",
-    description="Implement my own version of cat",
+    description="Implement my own version of cat in python",
 )
 
 parser.add_argument("paths", nargs="+", help="The file paths to process")
