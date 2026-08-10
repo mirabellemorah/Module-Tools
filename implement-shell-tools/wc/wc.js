@@ -11,8 +11,6 @@ program
 
 program.parse();
 
-///
-
 const paths = program.args;
 const showLines = program.opts().l;
 const showWords = program.opts().w;
